@@ -547,12 +547,12 @@
     "phone": "",
     "email": "",
     "status": "attend",
-    "location_attend": 0,
+    "location_attend": 1,
     "guests_count": 2,
     "url_invitation": "/thiepmoi/myfen",
-    "time_attend": "2026-03-17T09:58:42.836Z",
-    "message_attend": "",
-    "attend_days": "06"
+    "time_attend": "2026-03-17T11:34:09.247Z",
+    "message_attend": "hahaha",
+    "attend_days": "07"
   },
   {
     "id": 49,
@@ -605,5 +605,18 @@
     "time_attend": "",
     "message_attend": "",
     "attend_days": ""
+  },
+  {
+    "id": 53,
+    "name": "test tham dự",
+    "phone": "",
+    "email": "",
+    "status": "attend",
+    "location_attend": 1,
+    "guests_count": 2,
+    "url_invitation": "/thiepmoi/test-tham-du",
+    "time_attend": "2026-03-17T11:23:12.794Z",
+    "message_attend": "aaa",
+    "attend_days": "06"
   }
 ]

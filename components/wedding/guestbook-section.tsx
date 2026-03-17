@@ -16,10 +16,10 @@ type Guest = {
   message_attend: string;
 };
 
-// location_attend: 0 = Lễ Vu Quy, 1 = Lễ Tân Hôn (match event-info-section events index)
-const EVENT_LABELS: Record<number, string> = {
-  0: "Lễ Vu Quy",
-  1: "Lễ Tân Hôn",
+// location_attend: 0 = Đi xe tự túc, 1 = Đi chung xe dâu rễ
+const TRANSPORT_LABELS: Record<number, string> = {
+  0: "Đi xe tự túc",
+  1: "Đi chung xe dâu rễ",
 };
 
 function GuestbookTable({
@@ -195,12 +195,12 @@ export function GuestbookSection() {
         {/* Two guestbook tables: desktop side by side, mobile stacked */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 w-full max-w-4xl">
           <GuestbookTable
-            title={EVENT_LABELS[0] ?? "Lễ Vu Quy"}
+            title={TRANSPORT_LABELS[0] ?? "Đi xe tự túc"}
             guests={vuQuyGuests}
             isVisible={isVisible}
           />
           <GuestbookTable
-            title={EVENT_LABELS[1] ?? "Lễ Tân Hôn"}
+            title={TRANSPORT_LABELS[1] ?? "Đi chung xe dâu rễ"}
             guests={tanHonGuests}
             isVisible={isVisible}
           />

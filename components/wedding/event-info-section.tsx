@@ -69,15 +69,25 @@ interface ModalState {
 }
 
 /** Chỉ được chọn 1 trong 2: "06" = Chiều 06.04, "07" = Sáng 07.04 */
+/** location_attend: 0 = Đi xe tự túc, 1 = Đi chung xe dâu rễ */
 interface RSVPData {
   fullName: string;
   guests: string;
   message: string;
   attendDay: "06" | "07";
+  location_attend: 0 | 1;
 }
 
 interface SubmittedState {
   [eventIndex: number]: "attend" | "decline";
+}
+
+/** Dữ liệu hiển thị popup "Cảm ơn" sau khi xác nhận tham dự */
+interface ThankYouResult {
+  fullName: string;
+  attendDay: "06" | "07";
+  guests: number;
+  location_attend: 0 | 1;
 }
 
 function formatConfirmTime(iso: string): string {
@@ -175,12 +185,14 @@ export function EventInfoSection() {
     guests: "1",
     message: "",
     attendDay: "07",
+    location_attend: 0,
   });
   const [nameError, setNameError] = useState(false);
   const [submitted, setSubmitted] = useState<SubmittedState>({});
   const [changeMode, setChangeMode] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
+  const [thankYouResult, setThankYouResult] = useState<ThankYouResult | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   const pastDeadline = isPastRsvpDeadline(RSVP_DEADLINE);
@@ -222,11 +234,14 @@ export function EventInfoSection() {
       const initialMessage = friend?.message_attend ?? "";
       const ad = friend?.attend_days ?? "";
       const attendDay: "06" | "07" = ad.includes("06") ? "06" : "07";
+      const location_attend: 0 | 1 =
+        typeof friend?.location_attend === "number" && friend.location_attend === 1 ? 1 : 0;
       setRsvpData({
         fullName: initialName,
         guests: initialGuests,
         message: initialMessage,
         attendDay,
+        location_attend,
       });
       setNameError(false);
       setModal({ type, eventIndex });
@@ -259,7 +274,7 @@ export function EventInfoSection() {
             id: friend.id,
             name: nameTrimmed,
             status: modal.type,
-            location_attend: modal.eventIndex,
+            location_attend: rsvpData.location_attend,
             guests_count: parseInt(rsvpData.guests, 10) || 1,
             message_attend: rsvpData.message,
             attend_days: attend_days,
@@ -281,7 +296,7 @@ export function EventInfoSection() {
           body: JSON.stringify({
             name: nameTrimmed,
             status: modal.type,
-            location_attend: modal.eventIndex,
+            location_attend: rsvpData.location_attend,
             guests_count: parseInt(rsvpData.guests, 10) || 1,
             message_attend: rsvpData.message ?? "",
             attend_days: attend_days,
@@ -304,6 +319,12 @@ export function EventInfoSection() {
     if (modal.type === "attend") {
       fireRsvpConfetti();
       window.dispatchEvent(new CustomEvent("rsvp-confirmed"));
+      setThankYouResult({
+        fullName: nameTrimmed,
+        attendDay: rsvpData.attendDay,
+        guests: parseInt(rsvpData.guests, 10) || 1,
+        location_attend: rsvpData.location_attend,
+      });
     }
     closeModal();
   }, [modal, rsvpData, friend, ctx, closeModal]);
@@ -312,9 +333,7 @@ export function EventInfoSection() {
   const event = events[0];
   const originalIndex = 0;
   const isConfirmedHere =
-    friend &&
-    friend.status === "attend" &&
-    friend.location_attend === originalIndex;
+    friend && friend.status === "attend";
   const status = friend
     ? showButtons
       ? undefined
@@ -596,7 +615,7 @@ export function EventInfoSection() {
           onClick={closeModal}
         >
           <div
-            className="bg-card rounded-3xl p-8 md:p-10 max-w-md w-full border border-border shadow-lg animate-in fade-in zoom-in-95 duration-300"
+            className="bg-card rounded-3xl p-8 md:p-10 max-w-2xl w-full border border-border shadow-lg animate-in fade-in zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()}
           >
             {modal.type === "attend" ? (
@@ -673,42 +692,81 @@ export function EventInfoSection() {
                     </select>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm text-muted-foreground block">
-                      {"Tham gia vào"}
-                    </label>
-                    <div className="flex flex-col gap-2">
-                      <label className="flex items-center gap-3 cursor-pointer">
-                        <input
-                          type="radio"
-                          name="attendDay"
-                          value="06"
-                          checked={rsvpData.attendDay === "06"}
-                          onChange={() =>
-                            setRsvpData((d) => ({ ...d, attendDay: "06" }))
-                          }
-                          className="w-4 h-4 border-border text-primary focus:ring-primary/30"
-                        />
-                        <span className="text-sm text-foreground">
-                          Chiều ngày 06.04.2026
-                        </span>
+                  <div className="grid ">
+                    <div className="space-y-2">
+                      <label className="text-sm text-muted-foreground block">
+                        {"Tham gia vào"}
                       </label>
-                      <label className="flex items-center gap-3 cursor-pointer">
-                        <input
-                          type="radio"
-                          name="attendDay"
-                          value="07"
-                          checked={rsvpData.attendDay === "07"}
-                          onChange={() =>
-                            setRsvpData((d) => ({ ...d, attendDay: "07" }))
-                          }
-                          className="w-4 h-4 border-border text-primary focus:ring-primary/30"
-                        />
-                        <span className="text-sm text-foreground">
-                          Sáng ngày 07.04.2026
-                        </span>
-                      </label>
+                      <div className="flex flex-wrap gap-x-4 gap-y-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="attendDay"
+                            value="06"
+                            checked={rsvpData.attendDay === "06"}
+                            onChange={() =>
+                              setRsvpData((d) => ({ ...d, attendDay: "06" }))
+                            }
+                            className="w-4 h-4 border-border text-primary focus:ring-primary/30"
+                          />
+                          <span className="text-sm text-foreground">
+                            Chiều 06.04.2026
+                          </span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="attendDay"
+                            value="07"
+                            checked={rsvpData.attendDay === "07"}
+                            onChange={() =>
+                              setRsvpData((d) => ({ ...d, attendDay: "07" }))
+                            }
+                            className="w-4 h-4 border-border text-primary focus:ring-primary/30"
+                          />
+                          <span className="text-sm text-foreground">
+                            Sáng 07.04.2026
+                          </span>
+                        </label>
+                      </div>
                     </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm text-muted-foreground block">
+                        {"Phương tiện"}
+                      </label>
+                      <div className="flex flex-wrap gap-x-4 gap-y-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="location_attend"
+                            value="0"
+                            checked={rsvpData.location_attend === 0}
+                            onChange={() =>
+                              setRsvpData((d) => ({ ...d, location_attend: 0 }))
+                            }
+                            className="w-4 h-4 border-border text-primary focus:ring-primary/30"
+                          />
+                          <span className="text-sm text-foreground">
+                            Đi xe tự túc
+                          </span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="location_attend"
+                            value="1"
+                            checked={rsvpData.location_attend === 1}
+                            onChange={() =>
+                              setRsvpData((d) => ({ ...d, location_attend: 1 }))
+                            }
+                            className="w-4 h-4 border-border text-primary focus:ring-primary/30"
+                          />
+                          <span className="text-sm text-foreground">
+                            Đi chung xe dâu rễ
+                          </span>
+                        </label>
+                      </div>
                   </div>
 
                   <div className="space-y-2">
@@ -826,6 +884,102 @@ export function EventInfoSection() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Popup "Cảm ơn" sau khi xác nhận tham dự */}
+      {thankYouResult !== null && (
+        <div
+          className="fixed inset-0 bg-foreground/40 backdrop-blur-sm flex items-center justify-center z-[110] p-4"
+          onClick={() => setThankYouResult(null)}
+        >
+          <div
+            className="bg-card rounded-3xl p-8 md:p-10 max-w-lg w-full border border-border shadow-lg animate-in fade-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Heart className="w-6 h-6 text-primary" fill="currentColor" />
+              </div>
+              <h3 className="font-serif text-xl md:text-2xl text-foreground italic mb-1">
+                Cảm ơn {thankYouResult.fullName}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Chúng mình đã ghi nhận thông tin của bạn.
+              </p>
+            </div>
+            <dl className="space-y-3 text-sm mb-6">
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">Ngày đi</dt>
+                <dd className="font-medium text-foreground">
+                  {thankYouResult.attendDay === "06" ? "06/04/2026" : "07/04/2026"}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">Số người đi cùng</dt>
+                <dd className="font-medium text-foreground">
+                  {thankYouResult.guests} {thankYouResult.guests === 1 ? "người" : "người"}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">Phương tiện đi lại</dt>
+                <dd className="font-medium text-foreground">
+                  {thankYouResult.location_attend === 0 ? "Đi xe tự túc" : "Đi chung xe dâu rễ"}
+                </dd>
+              </div>
+            </dl>
+            <div className="rounded-2xl bg-primary/5 border border-primary/20 p-4 text-sm text-foreground">
+              {thankYouResult.location_attend === 1 && thankYouResult.attendDay === "06" && (
+                <p>
+                  Xe sẽ đón ở 189 Dương Bá Trạc vào lúc{" "}
+                  <span className="font-semibold text-primary">13:00 ngày 06/04/2026</span>.
+                </p>
+              )}
+              {thankYouResult.location_attend === 1 && thankYouResult.attendDay === "07" && (
+                <p>
+                  Xe sẽ đón ở 189 Dương Bá Trạc vào lúc{" "}
+                  <span className="font-semibold text-primary">06:00 ngày 07/04/2026</span>.
+                </p>
+              )}
+              {thankYouResult.location_attend === 0 && thankYouResult.attendDay === "06" && (
+                <p>
+                  Hẹn gặp bạn lúc{" "}
+                  <span className="font-semibold text-primary">18h ngày 06/04/2026</span> tại{" "}
+                  <a
+                    href={events[0].mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:no-underline font-medium"
+                  >
+                    địa điểm (xem bản đồ)
+                  </a>
+                  .
+                </p>
+              )}
+              {thankYouResult.location_attend === 0 && thankYouResult.attendDay === "07" && (
+                <p>
+                  Hẹn gặp bạn lúc{" "}
+                  <span className="font-semibold text-primary">10h ngày 07/04/2026</span> tại{" "}
+                  <a
+                    href={events[0].mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:no-underline font-medium"
+                  >
+                    địa điểm (xem bản đồ)
+                  </a>
+                  .
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setThankYouResult(null)}
+              className="w-full mt-6 py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm hover:scale-[1.02] active:scale-[0.98] transition-all"
+            >
+              Đóng
+            </button>
           </div>
         </div>
       )}
