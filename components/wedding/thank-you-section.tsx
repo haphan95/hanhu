@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { Heart, ChevronDown, Users } from "lucide-react"
 import { motion } from "framer-motion"
 import { COUPLE_NAME } from "@/lib/wedding-config"
+import { getPronouns } from "@/lib/pronoun"
 import { SparkleText } from "@/components/wedding/sparkle-text"
 import { useFriend } from "@/context/friend-context"
 
@@ -60,7 +61,7 @@ function GuestListTable({
                   </span>
                   <div className="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
                     <p className="font-medium text-foreground group-hover:text-primary transition-colors">
-                      {guest.email}
+                      {guest.email == '' ? guest.name : guest.email}
                     </p>
                     {guest.message_attend?.trim() ? (
                       <p className="text-sm text-muted-foreground mt-1 line-clamp-2 italic ml-2">
@@ -88,6 +89,7 @@ function GuestListTable({
 export function ThankYouSection() {
   const ctx = useFriend()
   const displayName = ctx?.friend?.name ?? "bạn"
+  const { self, guest } = getPronouns(displayName)
   const [isVisible, setIsVisible] = useState(false)
   const [listDay06, setListDay06] = useState<AttendedFriend[]>([])
   const [listDay07, setListDay07] = useState<AttendedFriend[]>([])
@@ -157,10 +159,10 @@ export function ThankYouSection() {
             </h2>
 
             <p className="text-foreground/90 leading-relaxed text-sm md:text-base mb-4">
-              {"Chỉ riêng việc bạn đọc lời mời này đã khiến chúng mình rất vui."}
+              Chỉ riêng việc {guest} đọc lời mời này đã khiến {self} rất vui.
             </p>
             <p className="text-foreground/90 leading-relaxed text-sm md:text-base mb-6">
-              {"Hy vọng sẽ được gặp bạn trong ngày trọng đại sắp tới."}
+              Hy vọng sẽ được gặp {guest} trong ngày trọng đại sắp tới.
             </p>
 
             <div className="flex items-center justify-center gap-3 mb-8">
