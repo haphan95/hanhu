@@ -9,6 +9,7 @@ import { GallerySection } from "@/components/wedding/gallery-section";
 import { TimelineSection } from "@/components/wedding/timeline-section";
 import { ThankYouSection } from "@/components/wedding/thank-you-section";
 import { GuestbookSection } from "@/components/wedding/guestbook-section";
+import { MusicPlayer } from "@/components/wedding/music-player";
 
 const scrollFade = {
   initial: { opacity: 0, y: 28 },
@@ -89,7 +90,7 @@ export function WeddingPageContent() {
       ref={mainRef}
       className="h-screen overflow-y-auto overflow-x-hidden scroll-smooth snap-y snap-mandatory scrollbar-hide"
     >
-      {/* <MusicPlayer /> */}
+      <MusicPlayer />
       {/* 4 section snap: mỗi lần scroll chuột = 1 section full */}
       <motion.div
         data-snap-section
