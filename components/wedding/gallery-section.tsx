@@ -121,7 +121,7 @@ export function GallerySection() {
 
       <a
         href="#guestbook"
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 animate-bounce text-muted-foreground hover:text-primary transition-colors"
+        className="hidden lg:block absolute bottom-6 left-1/2 -translate-x-1/2 z-10 animate-bounce text-muted-foreground hover:text-primary transition-colors"
         aria-label="Cuộn xuống"
       >
         <ChevronDown className="w-6 h-6 mx-auto" />

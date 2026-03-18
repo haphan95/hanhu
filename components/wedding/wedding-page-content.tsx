@@ -25,10 +25,12 @@ export function WeddingPageContent() {
   const scrollingRef = useRef(false);
   const wheelLockRef = useRef(false);
 
-  // Mỗi lần scroll chuột → nhảy đúng 1 section (chỉ 4 section đầu: Hero, Invitation, Event, Timeline)
+  // Snap scroll + wheel 1 section: chỉ trên desktop (lg: 1024px+)
   useEffect(() => {
     const el = mainRef.current;
     if (!el) return;
+
+    const isDesktop = () => window.matchMedia("(min-width: 1024px)").matches;
 
     const getSections = () =>
       Array.from(el.querySelectorAll<HTMLElement>("[data-snap-section]"));
@@ -54,6 +56,7 @@ export function WeddingPageContent() {
     };
 
     const onWheel = (e: WheelEvent) => {
+      if (!isDesktop()) return; // Mobile/tablet: free scroll
       if (scrollingRef.current) {
         e.preventDefault();
         return;
@@ -62,9 +65,8 @@ export function WeddingPageContent() {
       const vh = el.clientHeight;
       const snapZoneTop = SNAP_SECTION_COUNT * vh;
       const isInSnapZone = current < SNAP_SECTION_COUNT && el.scrollTop < snapZoneTop - 2;
-      if (!isInSnapZone) return; // Gallery + Thank you: scroll bình thường
+      if (!isInSnapZone) return;
 
-      // Ở Timeline (section cuối) cuộn xuống → cho qua để scroll sang Gallery
       if (current === SNAP_SECTION_COUNT - 1 && e.deltaY > 0) return;
 
       e.preventDefault();
@@ -88,46 +90,42 @@ export function WeddingPageContent() {
   return (
     <main
       ref={mainRef}
-      className="h-screen overflow-y-auto overflow-x-hidden scroll-smooth snap-y snap-mandatory scrollbar-hide"
+      className="min-h-screen overflow-y-auto overflow-x-hidden scroll-smooth scrollbar-hide lg:h-screen lg:snap-y lg:snap-mandatory"
     >
       <MusicPlayer />
-      {/* 4 section snap: mỗi lần scroll chuột = 1 section full */}
+      {/* Desktop (lg): snap + h-screen. Mobile/tablet: free scroll */}
       <motion.div
         data-snap-section
-        className="snap-start snap-always min-h-screen h-screen shrink-0"
+        className="min-h-screen lg:h-screen lg:snap-start lg:snap-always lg:shrink-0"
         {...scrollFade}
       >
         <HeroSection />
       </motion.div>
       <motion.div
         data-snap-section
-        className="snap-start snap-always min-h-screen h-screen shrink-0"
+        className="min-h-screen lg:h-screen lg:snap-start lg:snap-always lg:shrink-0"
         {...scrollFade}
       >
         <InvitationSection />
       </motion.div>
       <motion.div
         data-snap-section
-        className="snap-start snap-always min-h-screen h-screen shrink-0"
+        className="min-h-screen lg:h-screen lg:snap-start lg:snap-always lg:shrink-0"
         {...scrollFade}
       >
         <EventInfoSection />
       </motion.div>
       <motion.div
         data-snap-section
-        className="snap-start snap-always min-h-screen h-screen shrink-0"
+        className="min-h-screen lg:h-screen lg:snap-start lg:snap-always lg:shrink-0"
         {...scrollFade}
       >
         <TimelineSection />
       </motion.div>
-      {/* Gallery + Thank you: scroll bình thường */}
-      <motion.div data-snap-section
-        className="snap-start snap-always shrink-0"
-        {...scrollFade}>
+      <motion.div className="lg:snap-start lg:shrink-0" {...scrollFade}>
         <GallerySection />
       </motion.div>
-      <motion.div data-snap-section
-        className="snap-start snap-always shrink-0" {...scrollFade}>
+      <motion.div className="lg:snap-start lg:shrink-0" {...scrollFade}>
         <ThankYouSection />
       </motion.div>
     </main>

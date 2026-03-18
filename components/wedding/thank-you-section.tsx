@@ -204,7 +204,7 @@ export function ThankYouSection() {
 
       <a
         href="#hero"
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 animate-bounce text-muted-foreground hover:text-primary transition-colors"
+        className="hidden lg:block absolute bottom-6 left-1/2 -translate-x-1/2 z-10 animate-bounce text-muted-foreground hover:text-primary transition-colors"
         aria-label="Về đầu trang"
       >
         <ChevronDown className="w-6 h-6 mx-auto rotate-180" />

@@ -363,7 +363,7 @@ export function EventInfoSection() {
     <section
       id="events"
       ref={ref}
-      className="relative min-h-screen h-screen py-20 md:py-32 px-4 flex items-center justify-center overflow-hidden"
+      className="relative lg:h-screen py-20 md:py-32 px-4 flex items-center justify-center overflow-hidden"
     >
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30 pointer-events-none"
@@ -525,7 +525,7 @@ export function EventInfoSection() {
               {/* RSVP buttons / badge / thay đổi */}
               {showBadge ? (
                 <div
-                  className={`flex flex-col gap-2 w-full transition-opacity duration-300 ${isFadingOut ? "opacity-0" : "opacity-100"}`}
+                  className={`flex flex-col gap-2 w-full justify-center transition-opacity duration-300 ${isFadingOut ? "opacity-0" : "opacity-100"}`}
                 >
                   <span
                     className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-xs font-medium w-full ${
@@ -553,7 +553,7 @@ export function EventInfoSection() {
               ) : null}
               {showButtons ? (
                 <div
-                  className={`flex flex-wrap gap-2 transition-opacity duration-300 ${changeMode && friend ? "animate-in fade-in duration-300" : ""}`}
+                  className={`flex flex-wrap gap-2 justify-center transition-opacity duration-300 ${changeMode && friend ? "animate-in fade-in duration-300" : ""}`}
                 >
                   <button
                     onClick={() => openModal("attend", originalIndex)}
@@ -602,7 +602,7 @@ export function EventInfoSection() {
 
       <a
         href="#gallery"
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 animate-bounce text-muted-foreground hover:text-primary transition-colors"
+        className="hidden lg:block absolute bottom-6 left-1/2 -translate-x-1/2 z-10 animate-bounce text-muted-foreground hover:text-primary transition-colors"
         aria-label="Cuộn xuống"
       >
         <ChevronDown className="w-6 h-6 mx-auto" />

@@ -113,9 +113,9 @@ export function HeroSection() {
           ))}
         </div>
 
-        {/* Scroll indicator */}
+        {/* Scroll indicator: chỉ hiện trên desktop */}
         <div
-          className={`mt-16 animate-bounce transition-all duration-1000 delay-1000 ${
+          className={`hidden lg:block mt-16 animate-bounce transition-all duration-1000 delay-1000 ${
             mounted ? "opacity-100" : "opacity-0"
           }`}
         >
