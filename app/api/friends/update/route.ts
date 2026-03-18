@@ -3,6 +3,8 @@ import { updateFriend } from "@/lib/friends";
 import { VercelStorageNotConfiguredError } from "@/lib/friends-storage";
 import { isPastRsvpDeadline } from "@/lib/wedding-config";
 
+export type AttendDays = "" | "06" | "07" | "06,07";
+
 type Body = {
   id: number;
   name?: string;
@@ -10,7 +12,7 @@ type Body = {
   location_attend?: number;
   guests_count?: number;
   message_attend?: string;
-  attend_days?: string;
+  attend_days?: AttendDays;
 };
 
 export async function PATCH(request: NextRequest) {

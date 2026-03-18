@@ -13,6 +13,8 @@ interface AttendedFriend {
   status?: string
   attend_days?: string
   guests_count?: number
+  email?: string
+  message_attend?: string
 }
 
 function GuestListTable({
@@ -37,13 +39,13 @@ function GuestListTable({
           {title}
         </h3>
         <p className="text-xs text-muted-foreground mt-1">
-          {guests.length} khách xác nhận
+          {guests.length} khách tham gia
         </p>
       </div>
       <div className="overflow-auto max-h-[280px] md:max-h-[320px]">
         {guests.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8 px-4 italic">
-            Chưa có khách nào xác nhận
+            Chưa có khách nào tham gia
           </p>
         ) : (
           <ul className="divide-y divide-border/60">
@@ -58,8 +60,13 @@ function GuestListTable({
                   </span>
                   <div className="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
                     <p className="font-medium text-foreground group-hover:text-primary transition-colors">
-                      {guest.name}
+                      {guest.email}
                     </p>
+                    {guest.message_attend?.trim() ? (
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2 italic ml-2">
+                        &ldquo;{guest.message_attend.trim()}&rdquo;
+                      </p>
+                    ) : null}
                     <span
                       className="inline-flex items-center gap-1 text-muted-foreground text-xs"
                       title="Số người đi kèm"

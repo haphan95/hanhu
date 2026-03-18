@@ -932,13 +932,13 @@ export function EventInfoSection() {
             <div className="rounded-2xl bg-primary/5 border border-primary/20 p-4 text-sm text-foreground">
               {thankYouResult.location_attend === 1 && thankYouResult.attendDay === "06" && (
                 <p>
-                  Xe sẽ đón ở 189 Dương Bá Trạc vào lúc{" "}
+                  Xe sẽ đón ở 189 Dương Bá Trạc, P1, Q8 vào lúc{" "}
                   <span className="font-semibold text-primary">13:00 ngày 06/04/2026</span>.
                 </p>
               )}
               {thankYouResult.location_attend === 1 && thankYouResult.attendDay === "07" && (
                 <p>
-                  Xe sẽ đón ở 189 Dương Bá Trạc vào lúc{" "}
+                  Xe sẽ đón ở 189 Dương Bá Trạc, P1, Q8 vào lúc{" "}
                   <span className="font-semibold text-primary">06:00 ngày 07/04/2026</span>.
                 </p>
               )}

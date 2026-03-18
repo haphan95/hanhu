@@ -126,7 +126,7 @@ export function WeddingPageContent() {
         <GallerySection />
       </motion.div>
       <motion.div data-snap-section
-        className="snap-start snap-always min-h-screen h-screen shrink-0" {...scrollFade}>
+        className="snap-start snap-always shrink-0" {...scrollFade}>
         <ThankYouSection />
       </motion.div>
     </main>

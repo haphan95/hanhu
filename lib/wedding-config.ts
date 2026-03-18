@@ -9,10 +9,10 @@ export const WEDDING_DATE = "2026-04-07";
 export const WEDDING_DATETIME = "2026-04-07T11:00:00+07:00";
 
 /** Ngày giới hạn xác nhận tham dự (YYYY-MM-DD). Dùng cho UI và API. */
-export const RSVP_DEADLINE = "2026-03-31";
+export const RSVP_DEADLINE = "2026-03-25";
 
 /** File nhạc nền (đặt trong public). Mặc định phát khi vào trang. */
-export const WEDDING_AUDIO_FILE = "lulu.mp3";
+export const WEDDING_AUDIO_FILE = "haphan.mp3";
 export const WEDDING_AUDIO_AUTOPLAY = true;
 
 /** Định dạng ngày cưới để hiển thị (dd.MM.yyyy). */

@@ -87,7 +87,7 @@ export async function createFriend(data: {
   location_attend: number;
   guests_count: number;
   message_attend: string;
-  attend_days?: string;
+  attend_days?: AttendDays;
 }): Promise<Friend> {
   const friends = await getFriendsList();
   const id =
