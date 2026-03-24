@@ -1,21 +1,41 @@
-"use client"
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from "react"
-import { Heart, ChevronDown, Users } from "lucide-react"
-import { motion } from "framer-motion"
-import { COUPLE_NAME } from "@/lib/wedding-config"
-import { getPronouns } from "@/lib/pronoun"
-import { SparkleText } from "@/components/wedding/sparkle-text"
-import { useFriend } from "@/context/friend-context"
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Heart, ChevronDown, Users } from "lucide-react";
+import { motion } from "framer-motion";
+import { COUPLE_NAME } from "@/lib/wedding-config";
+import { getPronouns } from "@/lib/pronoun";
+import { SparkleText } from "@/components/wedding/sparkle-text";
+import { useFriend } from "@/context/friend-context";
 
 interface AttendedFriend {
-  id: number
-  name: string
-  status?: string
-  attend_days?: string
-  guests_count?: number
-  email?: string
-  message_attend?: string
+  id: number;
+  name: string;
+  status?: string;
+  attend_days?: string;
+  guests_count?: number;
+  email?: string;
+  message_attend?: string;
+  time_attend?: string;
+}
+
+function parseTimeAttend(value: string | undefined): number | null {
+  if (!value?.trim()) return null;
+  const t = Date.parse(value);
+  return Number.isNaN(t) ? null : t;
+}
+
+/** Newest RSVP first; guests without time_attend sort last; stable tie-break by id. */
+function sortByTimeAttend(guests: AttendedFriend[]): AttendedFriend[] {
+  return [...guests].sort((a, b) => {
+    const ta = parseTimeAttend(a.time_attend);
+    const tb = parseTimeAttend(b.time_attend);
+    if (ta === null && tb === null) return a.id - b.id;
+    if (ta === null) return 1;
+    if (tb === null) return -1;
+    if (tb !== ta) return tb - ta;
+    return a.id - b.id;
+  });
 }
 
 function GuestListTable({
@@ -23,9 +43,9 @@ function GuestListTable({
   guests,
   isVisible,
 }: {
-  title: string
-  guests: AttendedFriend[]
-  isVisible: boolean
+  title: string;
+  guests: AttendedFriend[];
+  isVisible: boolean;
 }) {
   return (
     <motion.div
@@ -61,7 +81,7 @@ function GuestListTable({
                   </span>
                   <div className="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
                     <p className="font-medium text-foreground group-hover:text-primary transition-colors">
-                      {guest.email == '' ? guest.name : guest.email}
+                      {guest.email == "" ? guest.name : guest.email}
                     </p>
                     {guest.message_attend?.trim() ? (
                       <p className="text-sm text-muted-foreground mt-1 line-clamp-2 italic ml-2">
@@ -73,7 +93,9 @@ function GuestListTable({
                       title="Số người đi kèm"
                     >
                       <Users className="w-3.5 h-3.5 shrink-0" />
-                      <span className="tabular-nums">{guest.guests_count ?? 0}</span>
+                      <span className="tabular-nums">
+                        {guest.guests_count ?? 0}
+                      </span>
                     </span>
                   </div>
                 </div>
@@ -83,54 +105,64 @@ function GuestListTable({
         )}
       </div>
     </motion.div>
-  )
+  );
 }
 
 export function ThankYouSection() {
-  const ctx = useFriend()
-  const displayName = ctx?.friend?.name ?? "bạn"
-  const { self, guest } = getPronouns(displayName)
-  const [isVisible, setIsVisible] = useState(false)
-  const [listDay06, setListDay06] = useState<AttendedFriend[]>([])
-  const [listDay07, setListDay07] = useState<AttendedFriend[]>([])
-  const ref = useRef<HTMLDivElement>(null)
+  const ctx = useFriend();
+  const displayName = ctx?.friend?.name ?? "bạn";
+  const { self, guest } = getPronouns(displayName);
+  const [isVisible, setIsVisible] = useState(false);
+  const [listDay06, setListDay06] = useState<AttendedFriend[]>([]);
+  const [listDay07, setListDay07] = useState<AttendedFriend[]>([]);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true)
+        if (entry.isIntersecting) setIsVisible(true);
       },
-      { threshold: 0.2 }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [])
+      { threshold: 0.2 },
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
 
   const fetchGuests = useCallback(() => {
-    let cancelled = false
+    let cancelled = false;
     fetch("/api/friends")
       .then((res) => res.json())
       .then((data: AttendedFriend[]) => {
-        if (cancelled || !Array.isArray(data)) return
-        const attended = data.filter((g) => g.status === "attend")
-        const day06 = attended.filter((g) => (g.attend_days ?? "").includes("06"))
-        const day07 = attended.filter((g) => (g.attend_days ?? "").includes("07") || (g.attend_days ?? "") === "")
-        setListDay06(day06)
-        setListDay07(day07)
+        if (cancelled || !Array.isArray(data)) return;
+        const attended = data.filter((g) => g.status === "attend");
+        const day06 = sortByTimeAttend(
+          attended.filter((g) => (g.attend_days ?? "").includes("06")),
+        );
+        const day07 = sortByTimeAttend(
+          attended.filter(
+            (g) =>
+              (g.attend_days ?? "").includes("07") ||
+              (g.attend_days ?? "") === "",
+          ),
+        );
+        setListDay06(day06);
+        setListDay07(day07);
       })
-      .catch(() => {})
-    return () => { cancelled = true }
-  }, [])
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
-    fetchGuests()
-  }, [fetchGuests])
+    fetchGuests();
+  }, [fetchGuests]);
 
   useEffect(() => {
-    const onRsvpConfirmed = () => fetchGuests()
-    window.addEventListener("rsvp-confirmed", onRsvpConfirmed)
-    return () => window.removeEventListener("rsvp-confirmed", onRsvpConfirmed)
-  }, [fetchGuests])
+    const onRsvpConfirmed = () => fetchGuests();
+    window.addEventListener("rsvp-confirmed", onRsvpConfirmed);
+    return () => window.removeEventListener("rsvp-confirmed", onRsvpConfirmed);
+  }, [fetchGuests]);
 
   return (
     <footer
@@ -150,12 +182,19 @@ export function ThankYouSection() {
           }`}
         >
           <div className="bg-card rounded-3xl shadow-xl shadow-primary/10 border border-border p-8 md:p-10 text-center">
-            <Heart className="w-10 h-10 text-primary mx-auto mb-6 animate-pulse" fill="currentColor" stroke="currentColor" strokeWidth={1.5} />
+            <Heart
+              className="w-10 h-10 text-primary mx-auto mb-6 animate-pulse"
+              fill="currentColor"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            />
 
             <h2 className="font-serif text-2xl md:text-3xl font-semibold text-foreground italic mb-5">
               Cảm ơn{" "}
-              <span className="font-[var(--font-pacifico)] text-primary">{displayName}</span>
-              {" "}vì đã ở đây!
+              <span className="font-[var(--font-pacifico)] text-primary">
+                {displayName}
+              </span>{" "}
+              vì đã ở đây!
             </h2>
 
             <p className="text-foreground/90 leading-relaxed text-sm md:text-base mb-4">
@@ -212,5 +251,5 @@ export function ThankYouSection() {
         <ChevronDown className="w-6 h-6 mx-auto rotate-180" />
       </a>
     </footer>
-  )
+  );
 }
